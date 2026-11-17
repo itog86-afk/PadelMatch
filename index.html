@@ -238,6 +238,14 @@ onclick="finalizarTorneo()">
 </button>
 
 <button
+class="btn-success"
+onclick="exportarPDF()">
+
+📄 Exportar PDF
+
+</button>
+
+<button
 class="btn-danger"
 onclick="resetTorneo()">
 
@@ -285,6 +293,9 @@ onclick="resetTorneo()">
 </table>
 
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+</script>
 
 <script>
 
@@ -889,6 +900,8 @@ let id =
 rondaActual +
 "_" +
 i;
+let cancha =
+((i / 4) % 3) + 1;
 
 let partido =
 document.createElement(
@@ -899,8 +912,11 @@ partido.className =
 "partido";
 
 partido.innerHTML =
-
 `
+<p>
+<b>🎾 Cancha ${cancha}</b>
+</p>
+
 <b>${a.nombre} / ${b.nombre}</b>
 
 <br>VS<br>
@@ -1049,6 +1065,9 @@ rondaActual +
 "_" +
 i;
 
+let cancha =
+((i / 2) % 3) + 1;
+
 let partido =
 document.createElement(
 "div"
@@ -1058,8 +1077,11 @@ partido.className =
 "partido";
 
 partido.innerHTML =
-
 `
+<p>
+<b>🎾 Cancha ${cancha}</b>
+</p>
+
 <b>${parejaA.nombre}</b>
 
 <br>VS<br>
@@ -1310,6 +1332,103 @@ fila
 );
 
 }
+);
+
+}
+
+
+function exportarPDF(){
+
+const { jsPDF } =
+window.jspdf;
+
+const doc =
+new jsPDF();
+
+doc.setFontSize(18);
+
+doc.text(
+"PADELMATCH",
+20,
+20
+);
+
+doc.setFontSize(12);
+
+doc.text(
+"Clasificación General",
+20,
+35
+);
+
+let fuente =
+
+modalidad==="fija"
+? [...parejasFijas]
+: [...jugadores];
+
+fuente.sort((a,b)=>{
+
+if(
+b.puntos !== a.puntos
+){
+return b.puntos - a.puntos;
+}
+
+let difA =
+a.juegosFavor -
+a.juegosContra;
+
+let difB =
+b.juegosFavor -
+b.juegosContra;
+
+return difB - difA;
+
+});
+
+let y = 50;
+
+fuente.forEach((item,index)=>{
+
+let puesto =
+(index+1);
+
+if(index===0){
+puesto="🥇";
+}
+else if(index===1){
+puesto="🥈";
+}
+else if(index===2){
+puesto="🥉";
+}
+
+let dif =
+item.juegosFavor -
+item.juegosContra;
+
+doc.text(
+
+puesto +
+" " +
+item.nombre +
+" | PTS: " +
+item.puntos +
+" | DIF: " +
+dif,
+
+20,
+y
+
+);
+
+y += 10;
+
+});
+
+doc.save(
+"PadelMatch.pdf"
 );
 
 }
